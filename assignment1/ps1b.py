@@ -9,6 +9,11 @@
 # Part B: Golden Eggs
 #================================
 
+import sys;
+
+INF=sys.maxsize/2;
+cache={};
+
 # Problem 1
 def dp_make_weight(egg_weights, target_weight, memo = {}):
     """
@@ -23,7 +28,15 @@ def dp_make_weight(egg_weights, target_weight, memo = {}):
     Returns: int, smallest number of eggs needed to make target weight
     """
     # TODO: Your code here
-    pass
+    if(target_weight==0): return 0;
+    if(egg_weights[0]>target_weight): return INF;
+    if(cache.get(target_weight)!=None): return cache.get(target_weight);
+    ret=INF;
+    for w in egg_weights:
+        if(w>target_weight): break;
+        ret=min(ret, 1+dp_make_weight(egg_weights,target_weight-w));
+    cache[target_weight]=ret;
+    return ret;
 
 # EXAMPLE TESTING CODE, feel free to add more if you'd like
 if __name__ == '__main__':

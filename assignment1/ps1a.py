@@ -6,6 +6,7 @@
 
 from ps1_partition import get_partitions
 import time
+import operator;
 
 #================================
 # Part A: Transporting Space Cows
@@ -25,7 +26,14 @@ def load_cows(filename):
     a dictionary of cow name (string), weight (int) pairs
     """
     # TODO: Your code here
-    pass
+    ret={};
+    f=open(filename, 'r');
+    lines=f.readlines();
+    for line in lines:
+        cow, weight=line.split(",");
+        ret[cow]=int(weight[0]);
+    f.close();
+    return ret;
 
 # Problem 2
 def greedy_cow_transport(cows,limit=10):
@@ -51,7 +59,21 @@ def greedy_cow_transport(cows,limit=10):
     trips
     """
     # TODO: Your code here
-    pass
+
+    #itemgetter에 인덱스를 집어넣음
+    cur_cows=sorted(cows.items(),key=operator.itemgetter(1),reverse=True);
+    ret=[];
+    cur_weight=0;
+    cur_transport=[];
+    for cow in cur_cows:
+        if(cur_weight+cow[1]>limit):
+            ret.append(cur_transport);
+            cur_transport=[];
+            cur_weight=0;
+        cur_weight+=cow[1];
+        cur_transport.append(cow[0]);
+    if(len(cur_transport)>0): ret.append(cur_transport);
+    return ret;
 
 # Problem 3
 def brute_force_cow_transport(cows,limit=10):
@@ -76,7 +98,20 @@ def brute_force_cow_transport(cows,limit=10):
     trips
     """
     # TODO: Your code here
-    pass
+    partitions=get_partitions(cows.items());
+    ret=[0]*(len(cows.items())+1);
+    for p in partitions:
+        isBreak=False;
+        for cows in p:
+            cur_weight=0;
+            for cow in cows:
+                cur_weight+=cow[1];
+                if(cur_weight>limit): 
+                    isBreak=True;
+                    break;
+            if(isBreak):break;
+        if(len(ret)>len(p) and isBreak==False): ret=p;
+    return ret;
         
 # Problem 4
 def compare_cow_transport_algorithms():
@@ -93,4 +128,20 @@ def compare_cow_transport_algorithms():
     Does not return anything.
     """
     # TODO: Your code here
-    pass
+    cows=load_cows("ps1_cow_data.txt");
+    start=time.time();
+    ret1=greedy_cow_transport(cows);
+    end=time.time();
+    take1=end-start;
+
+    start=time.time();
+    ret2=brute_force_cow_transport(cows);
+    end=time.time();
+    take2=end-start;
+
+    print(f"greedy_cow_transport() take: {take1}, trip:{len(ret1)}\n");
+    print(f'brute_force_cow_transport() take: {take2}, trip:{len(ret2)}')
+
+
+if __name__=="__main__":
+    compare_cow_transport_algorithms();
